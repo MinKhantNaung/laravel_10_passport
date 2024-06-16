@@ -81,6 +81,11 @@ class ApiController extends Controller
     // Logout API (POST)
     public function logout()
     {
+        auth()->user()->token()->revoke();
 
+        return response()->json([
+            "status" => true,
+            "message" => "User logged out"
+        ]);
     }
 }
