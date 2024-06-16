@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class ApiController extends Controller
@@ -38,7 +39,31 @@ class ApiController extends Controller
     // Login API (POST)
     public function login(Request $request)
     {
+        // data validation
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:8'
+        ]);
 
+        if (Auth::attempt([
+            'email' => $request->email,
+            'password' => $request->password
+        ])) {
+            $user = Auth::user();
+
+            $token = $user->createToken('laravel_passport_auth')->accessToken;
+
+            return response()->json([
+                'status' => true,
+                'message' => 'User logged in successfully!',
+                'token' => $token
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid login details'
+            ]);
+        }
     }
 
     // Profile API (GET)
